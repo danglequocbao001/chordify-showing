@@ -130,6 +130,8 @@ export default function App() {
           </p>
         </>
       )}
+
+      <footer className="foot">© {new Date().getFullYear()} Dang Le Quoc Bao</footer>
     </div>
   )
 }

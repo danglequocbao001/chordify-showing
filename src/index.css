@@ -236,3 +236,13 @@ textarea {
   margin-left: 6px;
   font-size: 13px;
 }
+
+/* footer, same treatment as share-bill: centered, mono, muted */
+.foot {
+  margin-top: 32px;
+  color: var(--muted);
+  font-family: var(--mono);
+  font-size: 0.85rem;
+  letter-spacing: 0.025em;
+  text-align: center;
+}
