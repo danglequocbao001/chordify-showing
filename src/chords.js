@@ -48,7 +48,12 @@ function inlineParts(line, t, bare) {
     if (!bare) return bit ? [{ text: bit }] : []
     return bit.split(/([\s,()\->:;/]+)/).filter(Boolean).map(s => (isChord(s) ? { chord: t(s) } : { text: s }))
   })
-  return parts.flatMap((p, i) => (p.chord && parts[i - 1]?.chord ? [{ text: ' ' }, p] : [p])) // "[C#m][G#m]" → "C#m G#m"
+  // keep chords from touching their neighbours: "[C#m][G#m]x2" → "C#m G#m x2"
+  return parts.flatMap((p, i) => {
+    if (!parts[i - 1]?.chord) return [p]
+    if (p.chord) return [{ text: ' ' }, p]
+    return /^[\p{L}\d]/u.test(p.text) ? [{ text: ' ' + p.text }] : [p]
+  })
 }
 
 // "[C#m]Hình như em" lines: split into words so long lines wrap; each chord sits above the text it precedes.
@@ -58,6 +63,9 @@ function lyricWords(line, t) {
   line.split(BRACKETS).forEach((bit, i) => {
     if (i % 2) {
       chord = isChord(bit) ? t(bit) : bit
+      // ponytail: a chord always starts a new word, since these sheets write "năm[D#]ta" for "năm ta".
+      // Ceiling: an English mid-word chord ("re[D]lieved") shows as two words; split on real spaces only if that matters.
+      if (words.at(-1).length) words.push([])
       return
     }
     for (const s of bit.split(/(\s+)/)) {

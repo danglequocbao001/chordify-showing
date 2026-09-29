@@ -1,5 +1,5 @@
-/* Layout: one column, a sticky transpose bar over the sheet.
-   Chords are bold orange; band notes are violet on a tinted band so they stand out from lyrics and chords. */
+/* Layout: one column. The transpose bar is sticky on top on wide screens and a fixed thumb bar at the
+   bottom on phones. Chords are bold orange; band notes are violet on a tinted band so they stand out. */
 :root {
   --bg: #f4f6f9;
   --paper: #ffffff;
@@ -10,6 +10,7 @@
   --chord: #c2410c;
   --cue: #6d28d9;
   --cue-bg: #efe8ff;
+  --shadow: rgb(16 24 40 / 0.1);
   --sans: 'Be Vietnam Pro', system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   --size: 16px;
@@ -27,8 +28,14 @@
     --chord: #fb923c;
     --cue: #dccfff;
     --cue-bg: #30265a;
+    --shadow: rgb(0 0 0 / 0.45);
     color-scheme: dark;
   }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
 }
 
 body {
@@ -42,7 +49,7 @@ body {
 .wrap {
   max-width: 860px;
   margin: 0 auto;
-  padding: 0 16px 48px;
+  padding: 0 max(16px, env(safe-area-inset-right, 0px)) 48px max(16px, env(safe-area-inset-left, 0px));
 }
 
 h1 {
@@ -75,7 +82,7 @@ h1 {
 /* toolbar */
 .bar {
   position: sticky;
-  top: 0;
+  top: env(safe-area-inset-top, 0px);
   z-index: 2;
   display: flex;
   flex-wrap: wrap;
@@ -106,10 +113,14 @@ button {
   border: 1px solid var(--line);
   border-radius: 8px;
   cursor: pointer;
+  touch-action: manipulation; /* no double-tap zoom when tapping − / + quickly */
+  -webkit-tap-highlight-color: transparent;
 }
 
-button:hover {
-  border-color: var(--accent);
+@media (hover: hover) {
+  button:hover {
+    border-color: var(--accent);
+  }
 }
 
 button:focus-visible,
@@ -122,6 +133,21 @@ button.primary {
   color: var(--paper);
   background: var(--accent);
   border-color: var(--accent);
+}
+
+button:active {
+  background: var(--line);
+}
+
+button.primary:active {
+  background: var(--accent);
+  opacity: 0.85;
+}
+
+.step {
+  min-width: 44px;
+  font-size: 1.2rem;
+  line-height: 1;
 }
 
 .key {
@@ -245,4 +271,86 @@ textarea {
   font-size: 0.85rem;
   letter-spacing: 0.025em;
   text-align: center;
+}
+
+/* touch screens (phones, tablets): 44px targets; 16px text in the editor or iOS zooms in on focus */
+@media (pointer: coarse) {
+  button {
+    min-height: 44px;
+  }
+
+  textarea {
+    font-size: 16px;
+  }
+}
+
+/* phones: controls move to a fixed bar at the bottom, in thumb reach, and the sheet runs edge to edge.
+   Bar grid: row 1 = − · key · +, row 2 = Tone gốc · ♯/♭ · A− · A+ · Sửa */
+@media (max-width: 640px) {
+  .wrap {
+    padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+  }
+
+  h1 {
+    margin-top: 16px;
+    font-size: 1.35rem;
+  }
+
+  .sub {
+    font-size: 13px;
+  }
+
+  .bar {
+    position: fixed;
+    inset: auto 0 0;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 6px;
+    padding: 8px max(12px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px))
+      max(12px, env(safe-area-inset-left, 0px));
+    border-top: 1px solid var(--line);
+    border-bottom: 0;
+    box-shadow: 0 -6px 20px var(--shadow);
+  }
+
+  .grp {
+    display: contents;
+  }
+
+  .spacer {
+    display: none;
+  }
+
+  .bar button {
+    min-width: 0;
+    min-height: 44px;
+    padding: 4px;
+    font-size: 0.8rem;
+    line-height: 1.15;
+  }
+
+  .bar .step {
+    font-size: 1.5rem;
+  }
+
+  .key {
+    grid-column: span 3;
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    justify-content: center;
+    min-width: 0;
+    padding: 0 6px;
+    font-size: 1.1rem;
+    background: var(--paper);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+  }
+
+  .sheet {
+    margin-inline: -16px;
+    padding: 14px 16px;
+    border-inline: 0;
+    border-radius: 0;
+  }
 }

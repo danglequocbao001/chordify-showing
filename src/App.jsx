@@ -73,7 +73,7 @@ export default function App() {
 
       <div className="bar">
         <div className="grp">
-          <button onClick={() => setShift(s => (s - 1) % 12)} aria-label="Giảm nửa cung">
+          <button className="step" onClick={() => setShift(s => (s - 1) % 12)} aria-label="Giảm nửa cung">
             −
           </button>
           <div className="key" aria-live="polite">
@@ -85,12 +85,12 @@ export default function App() {
               <small>chưa có hợp âm</small>
             )}
           </div>
-          <button onClick={() => setShift(s => (s + 1) % 12)} aria-label="Tăng nửa cung">
+          <button className="step" onClick={() => setShift(s => (s + 1) % 12)} aria-label="Tăng nửa cung">
             +
           </button>
-          <button onClick={() => setShift(0)}>Tone gốc</button>
         </div>
         <div className="grp">
+          <button onClick={() => setShift(0)}>Tone gốc</button>
           <button onClick={() => setFlatPref(!flat)} title="Đổi cách ghi thăng/giáng">
             ♯ / ♭
           </button>
