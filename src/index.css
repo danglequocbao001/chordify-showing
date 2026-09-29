@@ -1,0 +1,238 @@
+/* Layout: one column, a sticky transpose bar over the sheet.
+   Chords are bold orange; band notes are violet on a tinted band so they stand out from lyrics and chords. */
+:root {
+  --bg: #f4f6f9;
+  --paper: #ffffff;
+  --fg: #1a2030;
+  --muted: #5f6b80;
+  --line: #dce1ea;
+  --accent: #1f5fbf;
+  --chord: #c2410c;
+  --cue: #6d28d9;
+  --cue-bg: #efe8ff;
+  --sans: 'Be Vietnam Pro', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
+  --size: 16px;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #11141b;
+    --paper: #191e28;
+    --fg: #e7eaf0;
+    --muted: #9aa4b6;
+    --line: #2b3342;
+    --accent: #6ea3ff;
+    --chord: #fb923c;
+    --cue: #dccfff;
+    --cue-bg: #30265a;
+    color-scheme: dark;
+  }
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--sans);
+  font-size: 15px;
+}
+
+.wrap {
+  max-width: 860px;
+  margin: 0 auto;
+  padding: 0 16px 48px;
+}
+
+h1 {
+  margin: 24px 0 6px;
+  font-size: 1.7rem;
+  font-weight: 800;
+  line-height: 1.25;
+  text-wrap: balance;
+}
+
+.keys {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  line-height: 1.9;
+}
+
+.keys span {
+  display: inline-block;
+  min-width: 84px;
+  color: var(--muted);
+  font-family: var(--sans);
+  font-size: 13px;
+}
+
+.sub {
+  margin: 0 0 12px;
+  color: var(--muted);
+}
+
+/* toolbar */
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding-block: 10px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+
+.grp {
+  display: flex;
+  gap: 4px;
+  align-items: center;
+}
+
+.spacer {
+  flex: 1;
+}
+
+button {
+  min-width: 38px;
+  padding: 6px 12px;
+  font: inherit;
+  font-weight: 600;
+  color: var(--fg);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+button:hover {
+  border-color: var(--accent);
+}
+
+button:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+button.primary {
+  color: var(--paper);
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
+.key {
+  min-width: 120px;
+  padding: 0 10px;
+  font-family: var(--mono);
+  font-variant-numeric: tabular-nums;
+  text-align: center;
+}
+
+.key b {
+  color: var(--chord);
+  font-size: 1.15em;
+}
+
+.key small {
+  color: var(--muted);
+}
+
+/* sheet */
+.sheet {
+  margin-top: 16px;
+  padding: 20px;
+  overflow-x: auto;
+  font-size: var(--size);
+  line-height: 1.5;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.ln {
+  min-height: 1.5em;
+}
+
+.c {
+  color: var(--chord);
+  font-family: var(--mono);
+  font-weight: 700;
+}
+
+.grid,
+.pre {
+  font-family: var(--mono);
+  white-space: pre;
+}
+
+.text,
+.row {
+  white-space: pre-wrap;
+}
+
+.lab {
+  margin-top: 0.9em;
+  color: var(--accent);
+  font-size: 1.1em;
+  font-weight: 800;
+}
+
+.cue {
+  box-sizing: border-box;
+  width: fit-content;
+  max-width: 100%;
+  margin-block: 0.8em 0.3em;
+  padding: 0.2em 0.65em;
+  color: var(--cue);
+  font-weight: 700;
+  white-space: pre-wrap;
+  background: var(--cue-bg);
+  border-radius: 6px;
+}
+
+/* "[C#m]Hình như em": each word is a column pair (chord above text) and lines wrap between words */
+.word {
+  display: inline-flex;
+  vertical-align: top;
+}
+
+.seg {
+  display: inline-flex;
+  flex-direction: column;
+  white-space: pre;
+}
+
+.seg .c {
+  min-height: 1.5em;
+  padding-right: 0.5ch;
+}
+
+/* edit mode */
+textarea {
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 60vh;
+  margin-top: 16px;
+  padding: 16px;
+  font: 14px/1.5 var(--mono);
+  color: var(--fg);
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+}
+
+.hint {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+.hint button {
+  margin-left: 6px;
+  font-size: 13px;
+}
