@@ -20,25 +20,31 @@ test('layout reads title keys, notes, inline chords and chord grids', () => {
     'G   C#m',
     '[C#m][G#m]x2',
     'Vào năm[D#]ta[F]60',
+    '[Block 3] Band dạo [A#m]',
+    '[Block 4]',
+    '[C#m]Hình',
   ].join('\n')
   const song = layout(sheet, 2, false)
   assert.equal(song.title, 'Bài thử')
   assert.deepEqual(song.nowKeys, ['D#m', 'Am'])
 
-  const [cue, lyric, grid, row, glued] = song.lines
+  const [loose, third, fourth] = song.blocks
+  assert.equal(loose.block, null)
+  const [cue, lyric, grid, row, glued] = loose.lines
   assert.equal(cue.type, 'cue')
   assert.deepEqual(cue.parts.filter(p => p.chord).map(p => p.chord), ['D#m', 'G#m7', 'Am7'])
+  // lyrics keep each chord inline, right where the sheet writes it, even between two syllables
+  const inline = line => line.parts.map(p => (p.chord ? `[${p.chord}]` : p.text)).join('')
   assert.equal(lyric.type, 'lyric')
-  assert.deepEqual(
-    lyric.words.map(w => w.map(p => (p.chord ? `[${p.chord}]` : '') + p.text).join('')),
-    ['[D#m]Hình', 'như', 'em', '[A#m]cần'],
-  )
+  assert.equal(inline(lyric), '[D#m]Hình như em [A#m]cần')
+  assert.equal(inline(glued), 'Vào năm[F]ta[G]60')
   assert.equal(grid.parts.map(p => p.chord ?? p.text).join(''), 'A   D#m')
   assert.equal(row.type, 'row')
   assert.equal(row.parts.map(p => p.chord ?? p.text).join(''), 'D#m A#m x2')
-  // a chord between two syllables stands for the missing space
-  assert.deepEqual(
-    glued.words.map(w => w.map(p => (p.chord ? `[${p.chord}]` : '') + p.text).join('')),
-    ['Vào', 'năm', '[F]ta', '[G]60'],
-  )
+  // "[Block 3]" opens a block and comes off its line; alone on a line it adds no empty one
+  assert.equal(third.block, '3')
+  assert.equal(third.lines.length, 1)
+  assert.equal(third.lines[0].parts.map(p => p.chord ?? p.text).join(''), 'Band dạo Cm')
+  assert.equal(fourth.block, '4')
+  assert.deepEqual(fourth.lines.map(inline), ['[D#m]Hình'])
 })

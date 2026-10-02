@@ -9,6 +9,7 @@ const FILLER = /^(\||\/|-+|\.+|x\d+|\(|\)|%)$/i // allowed on a chord line besid
 const CUE = /(band|drum|keyboard|\bkey\b|guitar|bass|mute|tone|vocal|intro|chorus|nhịp|dạo)/i // arrangement notes
 const NO_LYRIC = /^[\s\-\/|x\d().,]*$/i
 const BRACKETS = /\[([^\]]+)\]/
+const BLOCK = /^\s*\[block\s*(\d+)\]\s*/i // "[Block 3] Band dạo…" opens block 3 of the mashup
 
 export const isChord = s => CHORD.test(s)
 
@@ -41,14 +42,17 @@ function gridParts(line, t) {
   return parts
 }
 
-// Notes and chord-only rows read left to right. In notes, bare chord names ("tone C#m") are transposed too.
+// Notes, chord-only rows and lyrics read left to right. In notes, bare chord names ("tone C#m") are transposed too.
 function inlineParts(line, t, bare) {
-  const parts = line.split(BRACKETS).flatMap((bit, i) => {
+  return line.split(BRACKETS).flatMap((bit, i) => {
     if (i % 2) return [isChord(bit) ? { chord: t(bit) } : { text: `[${bit}]` }]
     if (!bare) return bit ? [{ text: bit }] : []
     return bit.split(/([\s,()\->:;/]+)/).filter(Boolean).map(s => (isChord(s) ? { chord: t(s) } : { text: s }))
   })
-  // keep chords from touching their neighbours: "[C#m][G#m]x2" → "C#m G#m x2"
+}
+
+// Chords shown without their brackets must not touch their neighbours: "[C#m][G#m]x2" → "C#m G#m x2"
+function spaced(parts) {
   return parts.flatMap((p, i) => {
     if (!parts[i - 1]?.chord) return [p]
     if (p.chord) return [{ text: ' ' }, p]
@@ -56,39 +60,15 @@ function inlineParts(line, t, bare) {
   })
 }
 
-// "[C#m]Hình như em" lines: split into words so long lines wrap; each chord sits above the text it precedes.
-function lyricWords(line, t) {
-  const words = [[]]
-  let chord = null
-  line.split(BRACKETS).forEach((bit, i) => {
-    if (i % 2) {
-      chord = isChord(bit) ? t(bit) : bit
-      // ponytail: a chord always starts a new word, since these sheets write "năm[D#]ta" for "năm ta".
-      // Ceiling: an English mid-word chord ("re[D]lieved") shows as two words; split on real spaces only if that matters.
-      if (words.at(-1).length) words.push([])
-      return
-    }
-    for (const s of bit.split(/(\s+)/)) {
-      if (/^\s+$/.test(s)) {
-        if (words.at(-1).length) words.push([])
-      } else if (s || chord) {
-        words.at(-1).push({ chord, text: s })
-        chord = null
-      }
-    }
-  })
-  return words.filter(w => w.length)
-}
-
 function classify(raw, prev, t) {
   if (isChordLine(raw)) return { type: 'grid', parts: gridParts(raw, t) }
   const label = raw.trim().match(/^\[([^\]]+)\]$/)
   if (label && !isChord(label[1])) return { type: 'label', text: label[1] }
   const bare = raw.replace(/\[[^\]]*\]/g, '')
-  if (CUE.test(bare)) return { type: 'cue', parts: inlineParts(raw, t, true) }
+  if (CUE.test(bare)) return { type: 'cue', parts: spaced(inlineParts(raw, t, true)) }
   if (!BRACKETS.test(raw)) return { type: prev === 'grid' ? 'pre' : 'text', text: raw } // 'pre' keeps columns under a grid
-  if (NO_LYRIC.test(bare)) return { type: 'row', parts: inlineParts(raw, t, false) }
-  return { type: 'lyric', words: lyricWords(raw, t) }
+  if (NO_LYRIC.test(bare)) return { type: 'row', parts: spaced(inlineParts(raw, t, false)) }
+  return { type: 'lyric', parts: inlineParts(raw, t, false) } // "[C#m]Hình như em": chords stay inline, as written
 }
 
 function firstChord(lines) {
@@ -100,7 +80,8 @@ function firstChord(lines) {
   return null
 }
 
-// Whole sheet → { title, keys, nowKeys, lines }, already transposed by `shift` semitones.
+// Whole sheet → { title, keys, nowKeys, blocks }, already transposed by `shift` semitones.
+// blocks[0] holds the lines before the first "[Block N]"; every marker then opens a block of its own.
 export function layout(text, shift, flat) {
   const t = c => transpose(c, shift, flat)
   const [head = '', ...body] = text.trim().split(/\r?\n/)
@@ -111,15 +92,20 @@ export function layout(text, shift, flat) {
   const first = firstChord(body)
   const keys = (fromTitle ? listed : first ? [first] : []).map(k => k.replace(/\/.*/, ''))
   let prev = null
-  const lines = body.map(raw => {
-    const line = classify(raw, prev, t)
+  const blocks = [{ block: null, lines: [] }]
+  for (const raw of body) {
+    const mark = raw.match(BLOCK)
+    if (mark) blocks.push({ block: mark[1], lines: [] })
+    const rest = mark ? raw.slice(mark[0].length) : raw
+    if (mark && !rest) continue // "[Block 8]" alone on its line
+    const line = classify(rest, prev, t)
     prev = line.type
-    return line
-  })
+    blocks.at(-1).lines.push(line)
+  }
   return {
     title: (fromTitle ? head.slice(0, list.index) : head).trim() || 'Bảng Hợp Âm',
     keys,
     nowKeys: keys.map(t),
-    lines,
+    blocks,
   }
 }

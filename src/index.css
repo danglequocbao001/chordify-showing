@@ -1,36 +1,22 @@
-/* Layout: one column. The transpose bar is sticky on top on wide screens and a fixed thumb bar at the
-   bottom on phones. Chords are bold orange; band notes are violet on a tinted band so they stand out. */
+/* Layout: one column, always dark whatever the system theme. The transpose bar is sticky on top on wide
+   screens and a fixed thumb bar at the bottom on phones. Chords are bold orange; band notes are violet on a
+   tinted band; the mashup's "Block" marks are solid green badges that fold their block away when tapped. */
 :root {
-  --bg: #f4f6f9;
-  --paper: #ffffff;
-  --fg: #1a2030;
-  --muted: #5f6b80;
-  --line: #dce1ea;
-  --accent: #1f5fbf;
-  --chord: #c2410c;
-  --cue: #6d28d9;
-  --cue-bg: #efe8ff;
-  --shadow: rgb(16 24 40 / 0.1);
+  --bg: #11141b;
+  --paper: #191e28;
+  --fg: #e7eaf0;
+  --muted: #9aa4b6;
+  --line: #2b3342;
+  --accent: #6ea3ff;
+  --chord: #fb923c;
+  --cue: #dccfff;
+  --cue-bg: #30265a;
+  --block: #4ade80;
+  --shadow: rgb(0 0 0 / 0.45);
   --sans: 'Be Vietnam Pro', system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
   --size: 16px;
-  color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #11141b;
-    --paper: #191e28;
-    --fg: #e7eaf0;
-    --muted: #9aa4b6;
-    --line: #2b3342;
-    --accent: #6ea3ff;
-    --chord: #fb923c;
-    --cue: #dccfff;
-    --cue-bg: #30265a;
-    --shadow: rgb(0 0 0 / 0.45);
-    color-scheme: dark;
-  }
+  color-scheme: dark;
 }
 
 html {
@@ -72,11 +58,6 @@ h1 {
   color: var(--muted);
   font-family: var(--sans);
   font-size: 13px;
-}
-
-.sub {
-  margin: 0 0 12px;
-  color: var(--muted);
 }
 
 /* toolbar */
@@ -124,6 +105,7 @@ button {
 }
 
 button:focus-visible,
+summary:focus-visible,
 textarea:focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
@@ -196,7 +178,8 @@ button.primary:active {
 }
 
 .text,
-.row {
+.row,
+.lyric {
   white-space: pre-wrap;
 }
 
@@ -220,21 +203,52 @@ button.primary:active {
   border-radius: 6px;
 }
 
-/* "[C#m]Hình như em": each word is a column pair (chord above text) and lines wrap between words */
-.word {
-  display: inline-flex;
-  vertical-align: top;
+/* "[Block 3]": the <summary> of its block. A solid badge and a rule across the sheet, so each block start is
+   easy to find; the arrow in the badge shows whether the block is open. */
+.block {
+  display: flex;
+  gap: 0.6em;
+  align-items: center;
+  margin-top: 1.6em;
+  list-style: none;
+  cursor: pointer;
 }
 
-.seg {
-  display: inline-flex;
-  flex-direction: column;
-  white-space: pre;
+.block::-webkit-details-marker {
+  display: none; /* Safari's own triangle; the badge has its arrow */
 }
 
-.seg .c {
-  min-height: 1.5em;
-  padding-right: 0.5ch;
+.block b {
+  padding: 0.15em 0.7em;
+  color: var(--bg);
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  background: var(--block);
+  border-radius: 6px;
+}
+
+.block b::after {
+  display: inline-block;
+  margin-left: 0.45em;
+  content: '▾';
+  transition: transform 0.15s;
+}
+
+details:not([open]) > .block b::after {
+  transform: rotate(-90deg);
+}
+
+.block::after {
+  flex: 1;
+  height: 2px;
+  content: '';
+  background: var(--block);
+  opacity: 0.4;
+}
+
+.block + .cue {
+  margin-top: 0.5em;
 }
 
 /* edit mode */
@@ -285,7 +299,7 @@ textarea {
 }
 
 /* phones: controls move to a fixed bar at the bottom, in thumb reach, and the sheet runs edge to edge.
-   Bar grid: row 1 = − · key · +, row 2 = Tone gốc · ♯/♭ · A− · A+ · Sửa */
+   Bar grid: row 1 = − · key · +, row 2 = Tone gốc · ♯/♭ · A− · A+ · Thu gọn · Sửa */
 @media (max-width: 640px) {
   .wrap {
     padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
@@ -296,15 +310,11 @@ textarea {
     font-size: 1.35rem;
   }
 
-  .sub {
-    font-size: 13px;
-  }
-
   .bar {
     position: fixed;
     inset: auto 0 0;
     display: grid;
-    grid-template-columns: repeat(5, 1fr);
+    grid-template-columns: repeat(6, 1fr);
     gap: 6px;
     padding: 8px max(12px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px))
       max(12px, env(safe-area-inset-left, 0px));
@@ -334,7 +344,7 @@ textarea {
   }
 
   .key {
-    grid-column: span 3;
+    grid-column: span 4;
     display: flex;
     gap: 6px;
     align-items: center;

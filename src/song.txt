@@ -1,6 +1,6 @@
 Mashup Chân Ái, Tình Nhân Ơi, Thiêu Thân, Gặp Lại Năm Ta 60 (C#m, A#m, F#m, Gm, Am)
 
-Keyboard + bass đi intro, tone C#m:
+[Block 1] Keyboard + bass đi intro, tone C#m:
 [C#m][G#m][F#][F#] - [C#m][G#m][F#][G#]
 Only Key + Guitar, Drum nhẹ
 [C#m]Hình như em yếu đuối [G#m]...cần một người
@@ -12,7 +12,7 @@ FULL BAND:
 [F#]Hu uh uh uh uh uh uh ~ Yêu em là chân ái !
 [C#m]Hu uh uh uh uh uh uh ~ [G#m]Hu uh uh uh uh
 [F#]Hu uh uh uh uh uh uh ~ Nên anh chớ ngần ngại !
-Mute All Band, sau 2 nhịp Keyboard đi intro, chuyển sang tone A#m:
+[Block 2] Mute All Band, sau 2 nhịp Keyboard đi intro, chuyển sang tone A#m:
 [A#m]/[G#]    [F#] x2
 FULL BAND, Drum vào nhẹ
 Oh please don’t [A#m]cry Đừng tiếc nuối thứ chẳng thể ở [G#]lại
@@ -28,7 +28,7 @@ Oh please don’t [A#m]cry Đừng tiếc nuối thứ chẳng thể ở [G#]l�
 Đừng để nước mắt em rơi vì [F#]ai [C#]Đừng yêu lần thứ [F7]hai
 Oh please don’t [A#m]cry Dẹp hết quá khứ chỉ còn hiện [G#]tại
 Đừng trách móc bởi hai ta đều [F#]sai và đừng [C#]nói thương [F7]em lần hai
-Band dạo 1 vòng [A#m] [G#] [F#] [C#]/[F7]
+[Block 3] Band dạo 1 vòng [A#m] [G#] [F#] [C#]/[F7]
 [A#m]I don’t wanna cry Mà sao chẳng thể ngăn lại
 [G#]I don’t wanna cry Mà sao nước mắt ngắn dài
 [F#]I don’t wanna cry [C#]I don’t wanna [F7]cry
@@ -39,7 +39,7 @@ E.Guitar Distortion + Slide bass vào + Palm Mute
 MUTE ALL BAND, sau 4 nhịp keyboard dạo, drum đi nhịp nhẹ
 Band dạo 1 vòng [A#m]/[G#] [F#] (8 nhịp)
 Vocal + band cùng vào, drum nhấn mạnh, dạo 1 vòng, đổi sang tone F#m 
-Dạo 1 vòng [F#m7]/[C#m7][D]
+[Block 4] Dạo 1 vòng [F#m7]/[C#m7][D]
 Tình nhân ơi [F#m7]đến đây được [C#m7]không
 Đến và [D]khẽ ôm vào [A]lòng
 Cả thế [F#m7]giới bỗng nhiên [C#m7]như chẳng quan [D]trọng.
@@ -60,7 +60,7 @@ Xin hãy [D#]để môi kề [A#]môi
 Để hoàng [Gm7]hôn chẳng lỡ [Dm7]hẹn với chân [D#]trời..
 Mute all band:
 Để cho trái tim này chẳng thể nghỉ [Gm7]ngơi.
-Keyboard đi nhẹ:
+[Block 5] Keyboard đi nhẹ:
 [Gm7]Hãy ngủ đi [Dm7]em, lo làm [D#]gì chuyện của [A#]sớm mai
 [Gm7]Ai của riêng [Dm7]ai, sao em [D#]nhớ?
 Keyboard vào, đi intro
@@ -76,7 +76,7 @@ Bởi ta cũng[D#]chẳng thể nào cùng[F]nhau mãi[Gm]đâu
 Ta gói ghém[Cm]giùm cho nhau lời sau cuối 'hãy được bình yên'
 Để rồi biết[D#]đâu khi[F]hai màu trên mái[Gm]đầu
 Drum báo vào:
-Chorus:
+[Block 6] Chorus:
 Rồi mai[D#]sau có[F]duyên hãy[Gm]gặp lại
 Vào năm[D#]ta[F]60, hết[A#]khờ dại
 Buồn biết[D#]mấy, đau đến[F]đâu cũng chỉ
@@ -92,7 +92,7 @@ Chỉ là vuột [Gm]tay nhau thôi nhưng đã có một thời
 Một thời từng là của [D#]nhau, Một thời từng là của [F]nhau 
 Một thời từng là của [Gm]nhau + phiêu…
 [Gm]x1 [D#][F]
-Lên 1 tone Gm -> Am, vocal tự lên, E.Guitar distortion
+[Block 7] Lên 1 tone Gm -> Am, vocal tự lên, E.Guitar distortion
 Rồi mai[F]sau có[G]duyên hãy[Am]gặp lại
 Vào năm[F]ta[G]60, hết[C]khờ dại
 Buồn biết[F]mấy, đau đến[G]đâu cũng chỉ
