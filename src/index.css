@@ -1,5 +1,5 @@
-/* Layout: one column, always dark whatever the system theme. The transpose bar is sticky on top on wide
-   screens and a fixed thumb bar at the bottom on phones. Chords are bold orange; band notes are violet on a
+/* Layout: one column, always dark whatever the system theme (light only on paper). The transpose bar is sticky
+   on top on wide screens and a fixed thumb bar at the bottom on phones. Chords are bold orange; band notes are violet on a
    tinted band; the mashup's "Block" marks are solid green badges that fold their block away when tapped. */
 :root {
   --bg: #11141b;
@@ -82,6 +82,15 @@ h1 {
 
 .spacer {
   flex: 1;
+}
+
+/* ♯/♭ · A− · A+ · In PDF: inside the bar here, in .tools above the sheet on phones */
+.desk {
+  display: contents;
+}
+
+.tools {
+  display: none;
 }
 
 button {
@@ -298,8 +307,9 @@ textarea {
   }
 }
 
-/* phones: controls move to a fixed bar at the bottom, in thumb reach, and the sheet runs edge to edge.
-   Bar grid: row 1 = − · key · +, row 2 = Tone gốc · ♯/♭ · A− · A+ · Thu gọn · Sửa */
+/* phones: the tone controls move to a fixed bar at the bottom, in thumb reach, and the sheet runs edge to edge.
+   Bar: row 1 = − · key · +, row 2 = Tone gốc · Thu gọn · Sửa. The set-once buttons (♯/♭ · A− · A+ · In PDF)
+   sit in .tools above the sheet instead, so the bottom bar stays short. */
 @media (max-width: 640px) {
   .wrap {
     padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
@@ -310,11 +320,24 @@ textarea {
     font-size: 1.35rem;
   }
 
+  .tools {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+  }
+
+  .tools button {
+    flex: 1;
+    min-width: 0;
+    padding: 4px;
+    font-size: 0.8rem;
+  }
+
   .bar {
     position: fixed;
     inset: auto 0 0;
-    display: grid;
-    grid-template-columns: repeat(6, 1fr);
+    display: flex;
+    flex-wrap: wrap;
     gap: 6px;
     padding: 8px max(12px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px))
       max(12px, env(safe-area-inset-left, 0px));
@@ -327,11 +350,19 @@ textarea {
     display: contents;
   }
 
-  .spacer {
+  .grp:first-child {
+    display: flex;
+    flex-basis: 100%;
+    gap: 6px;
+  }
+
+  .spacer,
+  .desk {
     display: none;
   }
 
   .bar button {
+    flex: 1;
     min-width: 0;
     min-height: 44px;
     padding: 4px;
@@ -344,7 +375,7 @@ textarea {
   }
 
   .key {
-    grid-column: span 4;
+    flex: 4;
     display: flex;
     gap: 6px;
     align-items: center;
@@ -362,5 +393,49 @@ textarea {
     padding: 14px 16px;
     border-inline: 0;
     border-radius: 0;
+  }
+}
+
+/* print / "In PDF": light colors on white, no controls, every block open (the button opens them; the
+   ::details-content rule covers Cmd+P), and backgrounds kept so the badges and band notes still show */
+@media print {
+  :root {
+    --bg: #fff;
+    --paper: #fff;
+    --fg: #111;
+    --muted: #555;
+    --line: #ccc;
+    --accent: #1d4ed8;
+    --chord: #c2410c;
+    --cue: #5b21b6;
+    --cue-bg: #ede9fe;
+    --block: #15803d;
+    color-scheme: light;
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  .bar,
+  .tools {
+    display: none;
+  }
+
+  .sheet {
+    margin: 12px 0 0;
+    padding: 0;
+    overflow: visible;
+    border: 0;
+  }
+
+  details::details-content {
+    content-visibility: visible;
+  }
+
+  .block {
+    break-after: avoid;
+  }
+
+  .block b::after {
+    display: none;
   }
 }

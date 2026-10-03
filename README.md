@@ -19,6 +19,6 @@ Bài mặc định nằm ở `src/song.txt`. Dán lời + hợp âm vào file đ
 - `[Tên đoạn]` đứng riêng một dòng là tiêu đề đoạn.
 - `[Block 3]` ở đầu dòng là mốc block của mashup, hiện thành nhãn xanh lá trên một dòng riêng; bấm vào nhãn để thu gọn / mở lại block đó, nút **Thu gọn / Mở hết** cạnh A+ làm cho tất cả block.
 
-Trang mở ở tone **Bm**, thấp hơn tone gốc C#m 1 cung cho vừa giọng ca sĩ (`DEFAULT_SHIFT` trong `src/App.jsx`). Tone không được lưu, tải lại trang là về Bm. Nút **Tone gốc** về lại C#m.
+Trang mở ở tone **Bm**, thấp hơn tone gốc C#m 1 cung cho vừa giọng ca sĩ (`DEFAULT_SHIFT` trong `src/App.jsx`). Nút **Tone gốc** về lại C#m.
 
-Nút **Sửa** trên trang cho dán bài khác, chỉ lưu trong trình duyệt đó. Khi `src/song.txt` thay đổi, trang dùng lại nội dung trong file.
+Nút **Sửa** trên trang cho dán bài khác. Trang không lưu gì: tải lại là về mặc định (lời trong `src/song.txt`, tone Bm, cỡ chữ, ♯/♭).

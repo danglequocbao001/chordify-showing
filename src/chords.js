@@ -20,9 +20,6 @@ export function transpose(chord, shift, flat) {
   return note(m[1], m[2]) + m[3] + (m[4] ? '/' + note(m[4], m[5]) : '')
 }
 
-// Cheap fingerprint of the default song, to notice when src/song.txt has been edited.
-export const hash = s => [...s].reduce((h, c) => (h * 31 + c.codePointAt(0)) | 0, 0)
-
 function isChordLine(line) {
   const toks = line.trim().split(/\s+/).filter(Boolean)
   return toks.some(isChord) && toks.every(t => isChord(t) || FILLER.test(t))

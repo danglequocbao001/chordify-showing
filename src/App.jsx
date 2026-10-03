@@ -1,40 +1,17 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useState } from 'react'
+import { flushSync } from 'react-dom'
 import SONG from './song.txt?raw'
-import { hash, layout } from './chords.js'
+import { layout } from './chords.js'
 
-// Per-browser settings. Prefixed because every Vite app on localhost:5173 shares one localStorage.
-const PREFIX = 'mashup-orange-sofia:'
-const load = (key, fallback) => {
-  try {
-    const v = localStorage.getItem(PREFIX + key)
-    return v === null ? fallback : JSON.parse(v)
-  } catch {
-    return fallback
-  }
-}
-const save = (key, value) => {
-  try {
-    if (value === null) localStorage.removeItem(PREFIX + key)
-    else localStorage.setItem(PREFIX + key, JSON.stringify(value))
-  } catch {
-    // storage blocked (private window…): the page still works, settings just aren't remembered
-  }
-}
-
-// The page opens one tone below the original key (C#m → Bm), easier for the singers, and every reload comes back
-// here: the tone is never stored. "Tone gốc" still goes to C#m.
+// The page opens one tone below the original key (C#m → Bm), easier for the singers. "Tone gốc" still goes to C#m.
 const DEFAULT_SHIFT = -2
 
-// A sheet pasted in the page only applies while src/song.txt is unchanged: edit the file and the file wins.
-// ('shift' is cleared too: older versions stored the tone.)
-if (load('base', null) !== hash(SONG)) ['text', 'shift', 'flat'].forEach(key => save(key, null))
-save('base', hash(SONG))
-
+// Nothing is stored: every reload comes back to src/song.txt, DEFAULT_SHIFT, the sheet's own ♯/♭ and 16px text.
 export default function App() {
-  const [custom, setCustom] = useState(() => load('text', null)) // pasted via Sửa; null = src/song.txt
-  const [shift, setShift] = useState(custom === null ? DEFAULT_SHIFT : 0) // semitones, -11…11; a pasted song as written
-  const [flatPref, setFlatPref] = useState(() => load('flat', null))
-  const [size, setSize] = useState(() => load('size', 16))
+  const [custom, setCustom] = useState(null) // pasted via Sửa; null = src/song.txt
+  const [shift, setShift] = useState(DEFAULT_SHIFT) // semitones, -11…11
+  const [flatPref, setFlatPref] = useState(null)
+  const [size, setSize] = useState(16)
   const [draft, setDraft] = useState(null) // textarea content while editing; null = reading
   const [folded, setFolded] = useState({}) // block index → folded; every block opens on load
 
@@ -43,16 +20,10 @@ export default function App() {
   const song = layout(text, shift, flat)
   const anyOpen = song.blocks.some((b, i) => b.block && !folded[i]) // then the button folds them all, else opens all
 
-  useEffect(() => {
-    save('flat', flatPref)
-    save('size', size)
-  }, [flatPref, size])
-
   const finishEditing = () => {
     if (draft !== text) {
       const next = draft === SONG ? null : draft
       setCustom(next)
-      save('text', next)
       setShift(next === null ? DEFAULT_SHIFT : 0) // back to src/song.txt: its usual tone; a pasted song: as written
       setFlatPref(null)
       setFolded({})
@@ -60,7 +31,31 @@ export default function App() {
     setDraft(null)
   }
 
-  const steps = `${shift > 0 ? '+' : '−'}${Math.abs(shift) / 2} cung`
+  const steps = `${shift > 0 ? '+' : '−'}${Math.abs(shift) / 2} tone`
+
+  // In the top bar on wide screens; on phones the same buttons sit above the sheet so the bottom bar stays short
+  const tools = (
+    <>
+      <button onClick={() => setFlatPref(!flat)} title="Đổi cách ghi thăng/giáng">
+        ♯ / ♭
+      </button>
+      <button onClick={() => setSize(s => Math.max(s - 2, 11))} aria-label="Chữ nhỏ hơn">
+        A−
+      </button>
+      <button onClick={() => setSize(s => Math.min(s + 2, 30))} aria-label="Chữ lớn hơn">
+        A+
+      </button>
+      <button
+        onClick={() => {
+          flushSync(() => setFolded({})) // open every block first: the PDF holds the whole song
+          window.print()
+        }}
+        title="In hoặc lưu PDF"
+      >
+        In PDF
+      </button>
+    </>
+  )
 
   return (
     <div className="wrap" style={{ '--size': `${size}px` }}>
@@ -79,7 +74,7 @@ export default function App() {
 
       <div className="bar">
         <div className="grp">
-          <button className="step" onClick={() => setShift(s => (s - 1) % 12)} aria-label="Giảm nửa cung">
+          <button className="step" onClick={() => setShift(s => (s - 1) % 12)} aria-label="Giảm nửa tone">
             −
           </button>
           <div className="key" aria-live="polite">
@@ -91,21 +86,13 @@ export default function App() {
               <small>chưa có hợp âm</small>
             )}
           </div>
-          <button className="step" onClick={() => setShift(s => (s + 1) % 12)} aria-label="Tăng nửa cung">
+          <button className="step" onClick={() => setShift(s => (s + 1) % 12)} aria-label="Tăng nửa tone">
             +
           </button>
         </div>
         <div className="grp">
           <button onClick={() => setShift(0)}>Tone gốc</button>
-          <button onClick={() => setFlatPref(!flat)} title="Đổi cách ghi thăng/giáng">
-            ♯ / ♭
-          </button>
-          <button onClick={() => setSize(s => Math.max(s - 2, 11))} aria-label="Chữ nhỏ hơn">
-            A−
-          </button>
-          <button onClick={() => setSize(s => Math.min(s + 2, 30))} aria-label="Chữ lớn hơn">
-            A+
-          </button>
+          <span className="desk">{tools}</span>
           {song.blocks.length > 1 && (
             <button
               onClick={() => setFolded(Object.fromEntries(song.blocks.map((b, i) => [i, anyOpen])))}
@@ -120,6 +107,7 @@ export default function App() {
           {draft === null ? 'Sửa' : 'Xong'}
         </button>
       </div>
+      <div className="tools">{tools}</div>
 
       {draft === null ? (
         <div className="sheet">
