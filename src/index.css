@@ -89,7 +89,26 @@ h1 {
   display: contents;
 }
 
-.tools {
+.tools,
+.toggle {
+  display: none;
+}
+
+/* Block shortcuts: the bar's second row here, a sticky strip above the sheet on phones (the copy after .bar) */
+.jump {
+  display: flex;
+  flex-basis: 100%;
+  flex-wrap: wrap;
+  gap: 4px;
+  align-items: center;
+}
+
+.jump small {
+  margin-right: 4px;
+  color: var(--muted);
+}
+
+.wrap > .jump {
   display: none;
 }
 
@@ -307,12 +326,12 @@ textarea {
   }
 }
 
-/* phones: the tone controls move to a fixed bar at the bottom, in thumb reach, and the sheet runs edge to edge.
-   Bar: row 1 = − · key · +, row 2 = Tone gốc · Thu gọn · Sửa. The set-once buttons (♯/♭ · A− · A+ · In PDF)
-   sit in .tools above the sheet instead, so the bottom bar stays short. */
+/* phones: the tone controls move to one short fixed row at the bottom, in thumb reach, and the sheet runs edge
+   to edge. Bar: − · key · + · Tone gốc · Thu gọn · Sửa · ▾; ▾ hides it down to a lone ▴ in the corner. The rest
+   (♯/♭ · A− · A+ · In PDF) sits in .tools above the sheet, and the block shortcuts in a thin sticky strip. */
 @media (max-width: 640px) {
   .wrap {
-    padding-bottom: calc(140px + env(safe-area-inset-bottom, 0px));
+    padding-bottom: calc(64px + env(safe-area-inset-bottom, 0px));
   }
 
   h1 {
@@ -336,53 +355,76 @@ textarea {
   .bar {
     position: fixed;
     inset: auto 0 0;
-    display: flex;
-    flex-wrap: wrap;
-    gap: 6px;
-    padding: 8px max(12px, env(safe-area-inset-right, 0px)) calc(8px + env(safe-area-inset-bottom, 0px))
-      max(12px, env(safe-area-inset-left, 0px));
+    gap: 4px;
+    flex-wrap: nowrap;
+    align-items: stretch;
+    padding: 6px max(8px, env(safe-area-inset-right, 0px)) calc(6px + env(safe-area-inset-bottom, 0px))
+      max(8px, env(safe-area-inset-left, 0px));
     border-top: 1px solid var(--line);
     border-bottom: 0;
     box-shadow: 0 -6px 20px var(--shadow);
+  }
+
+  .bar.hidden {
+    inset: auto max(12px, env(safe-area-inset-right, 0px)) calc(12px + env(safe-area-inset-bottom, 0px)) auto;
+    padding: 0;
+    background: none;
+    border: 0;
+    box-shadow: none;
+  }
+
+  .bar.hidden > :not(.toggle) {
+    display: none;
   }
 
   .grp {
     display: contents;
   }
 
-  .grp:first-child {
-    display: flex;
-    flex-basis: 100%;
-    gap: 6px;
-  }
-
   .spacer,
-  .desk {
+  .desk,
+  .bar > .jump {
     display: none;
   }
 
   .bar button {
-    flex: 1;
     min-width: 0;
-    min-height: 44px;
-    padding: 4px;
-    font-size: 0.8rem;
+    min-height: 36px;
+    padding: 2px 5px;
+    font-size: 0.75rem;
     line-height: 1.15;
   }
 
-  .bar .step {
-    font-size: 1.5rem;
+  .bar .step,
+  .bar .primary,
+  .toggle {
+    flex: none;
   }
 
+  .bar .step,
+  .toggle {
+    display: block;
+    width: 32px;
+    padding: 0;
+    font-size: 1.3rem;
+  }
+
+  .bar.hidden .toggle {
+    box-shadow: 0 2px 12px var(--shadow);
+  }
+
+  /* the key never clips: on a narrow phone the word buttons give way and wrap to two lines instead.
+     ponytail: fits from 360px up; on 320px phones Tone gốc / Thu gọn clip, shorten the key's "−1 tone" if that matters */
   .key {
-    flex: 4;
+    flex: 1 0 auto;
     display: flex;
-    gap: 6px;
+    gap: 4px;
     align-items: center;
     justify-content: center;
     min-width: 0;
-    padding: 0 6px;
-    font-size: 1.1rem;
+    padding: 0 4px;
+    font-size: 0.95rem;
+    white-space: nowrap;
     background: var(--paper);
     border: 1px solid var(--line);
     border-radius: 8px;
@@ -393,6 +435,32 @@ textarea {
     padding: 14px 16px;
     border-inline: 0;
     border-radius: 0;
+  }
+
+  .wrap > .jump {
+    position: sticky;
+    top: env(safe-area-inset-top, 0px);
+    z-index: 2;
+    display: flex;
+    flex-wrap: nowrap;
+    margin: 12px -16px 0;
+    padding: 4px 16px;
+    overflow-x: auto;
+    background: var(--bg);
+    border-bottom: 1px solid var(--line);
+  }
+
+  .jump small {
+    font-size: 0.75rem;
+  }
+
+  .jump button {
+    flex: none;
+    min-width: 30px;
+    min-height: 28px;
+    padding: 0 6px;
+    font-size: 0.8rem;
+    border-radius: 6px;
   }
 }
 
@@ -416,7 +484,8 @@ textarea {
   }
 
   .bar,
-  .tools {
+  .tools,
+  .jump {
     display: none;
   }
 

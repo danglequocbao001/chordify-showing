@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { flushSync } from 'react-dom'
 import SONG from './song.txt?raw'
 import { layout } from './chords.js'
@@ -14,11 +14,34 @@ export default function App() {
   const [size, setSize] = useState(16)
   const [draft, setDraft] = useState(null) // textarea content while editing; null = reading
   const [folded, setFolded] = useState({}) // block index → folded; every block opens on load
+  const [barShown, setBarShown] = useState(true) // phones: the bottom bar, or just its ▴ button
 
   const text = custom ?? SONG
   const flat = flatPref ?? /\b[A-G]b/.test(text) // follow the sheet's own ♯/♭ notation until toggled
   const song = layout(text, shift, flat)
   const anyOpen = song.blocks.some((b, i) => b.block && !folded[i]) // then the button folds them all, else opens all
+
+  // Keep the screen on: phones dim mid-song. The lock drops whenever the tab is hidden, so take it again on return.
+  // Unsupported, refused (low battery) or plain http on a LAN IP: the screen just dims as usual.
+  useEffect(() => {
+    const lock = () => document.visibilityState === 'visible' && navigator.wakeLock?.request('screen').catch(() => {})
+    lock()
+    document.addEventListener('visibilitychange', lock)
+    return () => document.removeEventListener('visibilitychange', lock)
+  }, [])
+
+  // Saved PDFs take their file name from the page title: the song's while printing, the app's otherwise
+  useEffect(() => {
+    const app = document.title
+    const before = () => (document.title = song.title)
+    const after = () => (document.title = app)
+    window.addEventListener('beforeprint', before)
+    window.addEventListener('afterprint', after)
+    return () => {
+      window.removeEventListener('beforeprint', before)
+      window.removeEventListener('afterprint', after)
+    }
+  }, [song.title])
 
   const finishEditing = () => {
     if (draft !== text) {
@@ -33,7 +56,7 @@ export default function App() {
 
   const steps = `${shift > 0 ? '+' : '−'}${Math.abs(shift) / 2} tone`
 
-  // In the top bar on wide screens; on phones the same buttons sit above the sheet so the bottom bar stays short
+  // In the top bar on wide screens; on phones the same buttons sit above the sheet so the bottom bar stays one row
   const tools = (
     <>
       <button onClick={() => setFlatPref(!flat)} title="Đổi cách ghi thăng/giáng">
@@ -57,6 +80,30 @@ export default function App() {
     </>
   )
 
+  // Block shortcuts: a second row of the top bar on wide screens, a sticky strip above the sheet on phones.
+  // A jump opens the block if it was folded and lands it just under that sticky row, whatever its height.
+  const jump = draft === null && song.blocks.length > 1 && (
+    <nav className="jump" aria-label="Nhảy tới block">
+      <small>Block</small>
+      {song.blocks.map(
+        ({ block }, i) =>
+          block && (
+            <button
+              key={i}
+              onClick={e => {
+                setFolded(f => ({ ...f, [i]: false }))
+                const sticky = e.currentTarget.closest('.bar') ?? e.currentTarget.parentElement
+                const top = document.getElementById(`block-${i}`).getBoundingClientRect().top + window.scrollY
+                window.scrollTo({ top: top - sticky.offsetHeight - 8, behavior: 'smooth' })
+              }}
+            >
+              {block}
+            </button>
+          ),
+      )}
+    </nav>
+  )
+
   return (
     <div className="wrap" style={{ '--size': `${size}px` }}>
       <h1>{song.title}</h1>
@@ -72,7 +119,7 @@ export default function App() {
         </p>
       )}
 
-      <div className="bar">
+      <div className={barShown ? 'bar' : 'bar hidden'}>
         <div className="grp">
           <button className="step" onClick={() => setShift(s => (s - 1) % 12)} aria-label="Giảm nửa tone">
             −
@@ -106,8 +153,18 @@ export default function App() {
         <button className="primary" onClick={draft === null ? () => setDraft(text) : finishEditing}>
           {draft === null ? 'Sửa' : 'Xong'}
         </button>
+        <button
+          className="toggle"
+          onClick={() => setBarShown(!barShown)}
+          aria-expanded={barShown}
+          aria-label={barShown ? 'Ẩn thanh công cụ' : 'Hiện thanh công cụ'}
+        >
+          {barShown ? '▾' : '▴'}
+        </button>
+        {jump}
       </div>
       <div className="tools">{tools}</div>
+      {jump}
 
       {draft === null ? (
         <div className="sheet">
@@ -115,7 +172,7 @@ export default function App() {
             const body = lines.map((line, j) => <Line key={j} line={line} />)
             // native <details>: tapping the badge folds the block, onToggle copies that into `folded`
             return block ? (
-              <details key={i} open={!folded[i]} onToggle={e => setFolded(f => ({ ...f, [i]: !e.target.open }))}>
+              <details key={i} id={`block-${i}`} open={!folded[i]} onToggle={e => setFolded(f => ({ ...f, [i]: !e.target.open }))}>
                 <summary className="block">
                   <b>Block {block}</b>
                 </summary>
