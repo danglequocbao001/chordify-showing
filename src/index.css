@@ -1,6 +1,6 @@
 /* Layout: one column, always dark whatever the system theme (light only on paper). The transpose bar is sticky
    on top on wide screens and a fixed thumb bar at the bottom on phones. Chords are bold orange; band notes are violet on a
-   tinted band; the mashup's "Block" marks are solid green badges that fold their block away when tapped. */
+   tinted band; the mashup's "Block" marks are solid accent-blue badges that fold their block away when tapped. */
 :root {
   --bg: #11141b;
   --paper: #191e28;
@@ -11,7 +11,7 @@
   --chord: #fb923c;
   --cue: #dccfff;
   --cue-bg: #30265a;
-  --block: #4ade80;
+  --block: var(--accent); /* same as the Sửa button */
   --shadow: rgb(0 0 0 / 0.45);
   --sans: 'Be Vietnam Pro', system-ui, sans-serif;
   --mono: 'JetBrains Mono', ui-monospace, Menlo, monospace;
@@ -477,7 +477,6 @@ textarea {
     --chord: #c2410c;
     --cue: #5b21b6;
     --cue-bg: #ede9fe;
-    --block: #15803d;
     color-scheme: light;
     print-color-adjust: exact;
     -webkit-print-color-adjust: exact;
